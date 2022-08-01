@@ -603,6 +603,7 @@ class _AccountPageState extends State<AccountPage>
   }
 
   Widget _topInfo() {
+    var nickname = Provider.of<AppData>(context, listen: false).user.nickName;
     return BlocBuilder<UserBloc, UserState>(builder: (context, snapshot) {
       return SliverToBoxAdapter(
         child: Row(
@@ -615,8 +616,13 @@ class _AccountPageState extends State<AccountPage>
                 size: 87,
                 title: false,
                 onTap: () {
-                  showModalBottomSheet(
-                      context: context, builder: (context) => AddPhotoBottom());
+                  if (userInfo!.nickname == nickname) {
+                    if (userInfo!.stories.stories.allStories.isEmpty) {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (context) => AddPhotoBottom());
+                    }
+                  }
                   if (userInfo!.stories.stories.allStories.isNotEmpty) {
                     showModalBottomSheet(
                       isScrollControlled: true,

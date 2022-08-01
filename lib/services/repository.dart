@@ -394,6 +394,7 @@ class Repository {
     // print(storyId);
     dio.options.headers = {"Authorization": "$token"};
     d.Response response = await dio.get("stories/delete_story$storyId");
+
     // print(response.data);
     // try {
     return SuccessAnswer.fromJson(response.data);
@@ -402,10 +403,11 @@ class Repository {
     // }
   }
 
-  Future<void> checkStory(String token, int storyId) async {
+  Future<SuccessAnswer?> checkStory(String token, int storyId) async {
     print(storyId);
     dio.options.headers = {"Authorization": "$token"};
     d.Response response = await dio.get("stories/story$storyId");
+    return (SuccessAnswer.fromJson(response.data));
   }
 
   Future<SuccessAnswer?> resetPasswordStepOne(

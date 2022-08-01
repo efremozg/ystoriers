@@ -56,7 +56,7 @@ class _StoryPageState extends State<StoryPage> {
     super.dispose();
   }
 
-  void setPause() async {
+  void setPause() {
     BlocProvider.of<StoryBloc>(context).add(PauseStory());
     indicatorAnimationController.value = IndicatorAnimationCommand(
       pause: true,
@@ -120,10 +120,10 @@ class _StoryPageState extends State<StoryPage> {
         }
         // if (widget.usersStories != null) {
         var token = Provider.of<AppData>(context, listen: false).user.userToken;
-        Future.delayed(Duration(seconds: 1), () {
+        Future.delayed(Duration(milliseconds: 1000), () {
           if (story != null) {
             print('im here');
-            Repository().checkStory(token, story!.id);
+            //Repository().checkStory(token, story!.id);
           }
         });
         // }
@@ -132,6 +132,7 @@ class _StoryPageState extends State<StoryPage> {
         // }
       },
       onPageBack: (value) {
+        BlocProvider.of<StoryBloc>(context).add(ChangePageStory());
         Timer(Duration(milliseconds: 1200), () {
           print('media type is: ' + story!.mediaType.toString());
           print('it is a video!!');
@@ -140,7 +141,6 @@ class _StoryPageState extends State<StoryPage> {
             setPause();
           }
         });
-        BlocProvider.of<StoryBloc>(context).add(ChangePageStory());
       },
       onPageForward: (value) {
         BlocProvider.of<StoryBloc>(context).add(ChangePageStory());

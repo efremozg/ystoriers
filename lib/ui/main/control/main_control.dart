@@ -31,7 +31,7 @@ class _MainPageControlState extends State<MainPageControl>
   @override
   void initState() {
     super.initState();
-    _checkInternetConncetion();
+    //_checkInternetConncetion();
     _tabController = TabController(initialIndex: 2, length: 4, vsync: this);
     _tabController.addListener(() {
       // setState(() {
@@ -40,15 +40,15 @@ class _MainPageControlState extends State<MainPageControl>
     });
   }
 
-  void _checkInternetConncetion() {
-    var networkStatus = Provider.of<NetworkStatus>(context, listen: false);
+  // void _checkInternetConncetion() {
+  //   var networkStatus = Provider.of<NetworkStatus>(context, listen: false);
 
-    if (networkStatus == NetworkStatus.Offline) {
-      StandartSnackBar.show(
-          context, 'Потеряно интернет соединение', SnackBarStatus.warning());
-    } else
-      print('network $networkStatus');
-  }
+  //   if (networkStatus == NetworkStatus.Offline) {
+  //     StandartSnackBar.show(
+  //         context, 'Потеряно интернет соединение', SnackBarStatus.warning());
+  //   } else
+  //     print('network $networkStatus');
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class _MainPageControlState extends State<MainPageControl>
               photoType: PhotoType.stories,
               returnToMain: () {
                 setState(() {
-                  _checkInternetConncetion();
+                  //_checkInternetConncetion();
                   _tabController.index = 2;
                 });
               },
@@ -78,13 +78,13 @@ class _MainPageControlState extends State<MainPageControl>
             StoriesControl(
               closeChat: () {
                 setState(() {
-                  _checkInternetConncetion();
+                  //_checkInternetConncetion();
                   _tabController.index = 2;
                 });
               },
               openAddPhoto: () {
                 setState(() {
-                  _checkInternetConncetion();
+                  // _checkInternetConncetion();
                   _tabController.index = 0;
                 });
               },
@@ -92,14 +92,14 @@ class _MainPageControlState extends State<MainPageControl>
             NavigateControl(
               openCamera: () {
                 setState(() {
-                  _checkInternetConncetion();
+                  //_checkInternetConncetion();
                   // _currentTabIndex = 0;
                   _tabController.index = 1;
                 });
               },
               onChangedPage: (page) {
                 setState(() {
-                  _checkInternetConncetion();
+                  //_checkInternetConncetion();
                   page == 0 ? _isScrollable = true : _isScrollable = false;
                 });
                 if (_isScrollable) {

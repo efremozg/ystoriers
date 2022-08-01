@@ -49,7 +49,7 @@ class _CameraPageState extends State<CameraPage> {
   void initState() {
     super.initState();
     _requestAssets();
-    _setCamera(0);
+    _setCamera(cameraIndex);
   }
 
   void _setCamera(int index) async {

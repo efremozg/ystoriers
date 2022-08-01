@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:y_storiers/bloc/story/story_bloc.dart';
 import 'package:y_storiers/bloc/user/user_bloc.dart';
 import 'package:y_storiers/services/network_service.dart';
+import 'package:y_storiers/ui/add_post/widgets/standart_snackbar.dart';
 import 'package:y_storiers/ui/main/check/check.dart';
 import 'package:y_storiers/ui/provider/app_data.dart';
 
@@ -44,8 +48,37 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late StreamSubscription subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    subscription =
+        Connectivity().onConnectivityChanged.listen(_showInternetConnection);
+  }
+
+  void _showInternetConnection(ConnectivityResult result) {
+    final hasConnection = result == ConnectivityResult.none;
+    hasConnection
+        ? StandartSnackBar.show(context, 'Cоединение восстановлено',
+            SnackBarStatus.internetResultSuccess())
+        : StandartSnackBar.show(
+            context, 'Потеряно интернет соединение', SnackBarStatus.warning());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,18 +92,9 @@ class MyApp extends StatelessWidget {
         }),
       ],
       child: OverlaySupport.global(
-        child: MultiProvider(
-          providers: [
-            StreamProvider<NetworkStatus>(
-              create: (context) =>
-                  NetworkStatusService().networkStatusController.stream,
-              initialData: NetworkStatus.Online,
-            ),
-          ],
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Check(),
-          ),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Check(),
         ),
       ),
     );

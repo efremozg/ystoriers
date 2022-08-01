@@ -79,6 +79,13 @@ class SnackBarStatus {
     );
   }
 
+  static SnackBarStatus internetResultSuccess() {
+    return SnackBarStatus(
+      Icons.check_circle,
+      Colors.white,
+    );
+  }
+
   static SnackBarStatus loading() {
     return SnackBarStatus(
       Icons.info,
