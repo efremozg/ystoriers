@@ -1,0 +1,1 @@
+enum Changes { remove, add }

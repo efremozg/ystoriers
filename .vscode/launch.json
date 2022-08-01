@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Flutter",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart"
+        },
+
+
+            {
+                    "name": "YStories",
+                    "program": "lib/main.dart",
+                    "request": "launch",
+                    "type": "dart",
+                    "args": [
+                            "--no-sound-null-safety"
+                        ]
+            }
+    ]
+}
