@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -28,6 +30,8 @@ import 'package:y_storiers/ui/widgets/bottom_sheets/bottom_logout.dart';
 import 'package:y_storiers/ui/widgets/bottom_sheets/bottom_unsubcribe_user.dart';
 import 'package:y_storiers/ui/strory/stories.dart';
 
+import '../../widgets/bottom_sheets/bottom_change_photo.dart';
+
 class AccountPage extends StatefulWidget {
   final UserModel? user;
   final Function()? openCamera;
@@ -46,6 +50,8 @@ class _AccountPageState extends State<AccountPage>
   bool onTapSubscribe = true;
   bool isOpenPost = false;
   GetPost? _getPost;
+  String _image = '';
+  String _imageUrl = '';
 
   Future<void> _refresh() async {
     var user = Provider.of<AppData>(context, listen: false).user;
@@ -113,6 +119,57 @@ class _AccountPageState extends State<AccountPage>
       });
       // print(result.stories.allStories[0].media);
     }
+  }
+
+  void _showBottomSheetToUpdatePhoto() async {
+    await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return ChangePhotoBottom();
+        }).then((value) {
+      if (value is File) {
+        _setImage(value);
+      }
+      if (value is String) {
+        if (value == 'delete') {
+          setState(() {
+            _image = '';
+            _imageUrl = '';
+          });
+        }
+      }
+    });
+    //updatePhoto();
+  }
+
+  void updatePhoto() async {
+    userInfo = BlocProvider.of<UserBloc>(context).userInfo;
+    var token = Provider.of<AppData>(context, listen: false).user.userToken;
+    BlocProvider.of<UserBloc>(context).add(
+      UpdateInfo(
+        name: null,
+        email: null,
+        nickname: userInfo!.nickname!,
+        description: null,
+        gender: null,
+        birth: null,
+        photo: _image != '' ? 'data:image/jpeg;base64,' + _image : 'photo',
+        token: token,
+        phone: null,
+        context: context,
+      ),
+    );
+  }
+
+  void _setImage(File image) async {
+    try {
+      var bytes = await image.readAsBytes();
+
+      setState(() {
+        _image = base64Encode(bytes);
+      });
+    } on PlatformException catch (error) {}
   }
 
   @override
@@ -618,9 +675,7 @@ class _AccountPageState extends State<AccountPage>
                 onTap: () {
                   if (userInfo!.nickname == nickname) {
                     if (userInfo!.stories.stories.allStories.isEmpty) {
-                      showModalBottomSheet(
-                          context: context,
-                          builder: (context) => AddPhotoBottom());
+                      _showBottomSheetToUpdatePhoto();
                     }
                   }
                   if (userInfo!.stories.stories.allStories.isNotEmpty) {

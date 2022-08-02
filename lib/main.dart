@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
@@ -56,28 +57,39 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late StreamSubscription subscription;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _subscription;
+  var hasConnection = false;
+  bool isAlert = false;
+  bool wasLost = false;
 
   @override
   void initState() {
     super.initState();
-    subscription =
-        Connectivity().onConnectivityChanged.listen(_showInternetConnection);
+
+    getConnectivity();
   }
 
-  void _showInternetConnection(ConnectivityResult result) {
-    final hasConnection = result == ConnectivityResult.none;
-    hasConnection
-        ? StandartSnackBar.show(context, 'Cоединение восстановлено',
-            SnackBarStatus.internetResultSuccess())
-        : StandartSnackBar.show(
-            context, 'Потеряно интернет соединение', SnackBarStatus.warning());
-  }
+  getConnectivity() => _subscription = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) async {
+        hasConnection = await InternetConnectionChecker().hasConnection;
+        if (!hasConnection && result != ConnectivityResult.none) {
+          StandartSnackBar.show(context, 'Потеряно интернет соединение',
+              SnackBarStatus.warning());
+          setState(() => wasLost = true);
+        } else if (wasLost) {
+          StandartSnackBar.show(context, 'Cоединение восстановлено',
+              SnackBarStatus.internetResultSuccess());
+          setState(() => wasLost = false);
+        }
+      });
 
   @override
   void dispose() {
     super.dispose();
-    subscription.cancel();
+    _subscription.cancel();
   }
 
   @override

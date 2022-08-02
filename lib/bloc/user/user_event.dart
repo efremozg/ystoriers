@@ -23,6 +23,19 @@ class GetInfo extends UserEvent {
   });
 }
 
+class UpdatePhoto extends UserEvent {
+  final String nickname;
+  final String? photo;
+  final String token;
+  final BuildContext context;
+
+  UpdatePhoto(
+      {required this.context,
+      required this.nickname,
+      required this.photo,
+      required this.token});
+}
+
 class UpdateInfo extends UserEvent {
   final String? name;
   final String nickname;

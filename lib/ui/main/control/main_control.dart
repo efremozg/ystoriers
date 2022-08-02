@@ -40,16 +40,6 @@ class _MainPageControlState extends State<MainPageControl>
     });
   }
 
-  // void _checkInternetConncetion() {
-  //   var networkStatus = Provider.of<NetworkStatus>(context, listen: false);
-
-  //   if (networkStatus == NetworkStatus.Offline) {
-  //     StandartSnackBar.show(
-  //         context, 'Потеряно интернет соединение', SnackBarStatus.warning());
-  //   } else
-  //     print('network $networkStatus');
-  // }
-
   @override
   Widget build(BuildContext context) {
     var provider = Provider.of<AppData>(context);

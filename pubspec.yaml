@@ -45,6 +45,7 @@ dependencies:
   inview_notifier_list: ^3.0.0
   zoom_pinch_overlay: ^1.2.0
   connectivity_plus: ^2.3.6
+  internet_connection_checker: ^0.0.1+4
 
 dev_dependencies:
   flutter_test:
