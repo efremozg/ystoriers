@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ import 'package:y_storiers/bloc/story/story_state.dart';
 import 'package:y_storiers/bloc/user/user.dart';
 import 'package:y_storiers/services/constants.dart';
 import 'package:y_storiers/services/objects/feed.dart';
+import 'package:y_storiers/services/objects/get_stories.dart';
 import 'package:y_storiers/services/objects/stories.dart';
 import 'package:y_storiers/services/objects/user.dart';
 import 'package:y_storiers/services/objects/user_info.dart' as user;
@@ -40,14 +42,17 @@ class StoryPage extends StatefulWidget {
 class _StoryPageState extends State<StoryPage> {
   late ValueNotifier<IndicatorAnimationCommand> indicatorAnimationController;
   Story? story;
+  CachedVideoPlayerController? _controller;
 
   @override
   void initState() {
     super.initState();
+
     indicatorAnimationController = ValueNotifier<IndicatorAnimationCommand>(
       IndicatorAnimationCommand(pause: true, resume: false),
     );
     setPause();
+    // init();
   }
 
   @override
@@ -73,6 +78,7 @@ class _StoryPageState extends State<StoryPage> {
         if (event is StoryChangePage) {
           if (story?.mediaType == 'video') {
             setPause();
+            // init();
           }
           return true;
         } else if (event is StoryLoaded) {
@@ -116,6 +122,7 @@ class _StoryPageState extends State<StoryPage> {
       indicatorPadding: const EdgeInsets.only(top: 10, left: 5, right: 5),
       onStoryIndexChanged: (value) {
         if (story?.mediaType == 'video') {
+          // init();
           setPause();
         }
         // if (widget.usersStories != null) {
@@ -145,11 +152,11 @@ class _StoryPageState extends State<StoryPage> {
       onPageForward: (value) {
         BlocProvider.of<StoryBloc>(context).add(ChangePageStory());
         print(story?.id);
-        if (story!.mediaType == 'video') {
-          Future.delayed(Duration(milliseconds: 1000), () {
-            setPause();
-          });
-        }
+        // if (story!.mediaType == 'video') {
+        //   Future.delayed(Duration(milliseconds: 0), () {
+        //     setPause();
+        //   });
+        // }
       },
       indicatorDuration: bloc.duration == null
           ? const Duration(seconds: 5)
@@ -203,37 +210,48 @@ class _StoryPageState extends State<StoryPage> {
     );
   }
 
+  // Future<void> init() async {
+  //   _controller = await CachedVideoPlayerController.network(
+  //       mediaUrl + story!.media.toString())
+  //     ..initialize();
+  // }
+
   Widget _storyWidget() {
+    // print("media is ${mediaUrl + story!.media.toString()}");
+    // _controller =
+    //     CachedVideoPlayerController.network(mediaUrl + story!.media.toString())
+    //       ..initialize();
     return Positioned.fill(
       child: Container(
-        color: Colors.black,
+        color: Colors.transparent,
         padding: const EdgeInsets.only(bottom: 70),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: story?.mediaType == 'image'
-              ? CachedNetworkImage(
-                  imageUrl: mediaUrl + story!.media,
-                  fit: BoxFit.fitWidth,
-                )
-              : StoriesVideo(
-                  url: story!.media,
-                  duration: (duration) async {},
-                  loaded: (duration) async {
-                    indicatorAnimationController.value =
-                        IndicatorAnimationCommand(
-                      resume: true,
-                      duration: duration,
-                    );
-                  },
-                  pause: () async {
-                    indicatorAnimationController.value =
-                        IndicatorAnimationCommand(
-                      pause: true,
-                    );
-                  },
-                  indicatorAnimationController: indicatorAnimationController,
-                ),
-        ),
+            borderRadius: BorderRadius.circular(10),
+            child: story?.mediaType == 'video'
+                ? StoriesVideo(
+                    url: story!.media,
+                    duration: (duration) async {},
+                    loaded: (duration) async {
+                      indicatorAnimationController.value =
+                          IndicatorAnimationCommand(
+                        resume: true,
+                        duration: duration,
+                      );
+                    },
+                    pause: () async {
+                      indicatorAnimationController.value =
+                          IndicatorAnimationCommand(
+                        pause: true,
+                      );
+                    },
+                    indicatorAnimationController: indicatorAnimationController,
+                  )
+                : CachedNetworkImage(
+                    imageUrl: mediaUrl + story!.media,
+                    fit: BoxFit.fitWidth,
+                    //color: Colors.transparent,
+                    fadeInDuration: Duration(milliseconds: 0),
+                  )),
       ),
     );
   }

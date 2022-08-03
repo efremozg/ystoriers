@@ -19,6 +19,8 @@ import 'package:y_storiers/ui/settings/bio.dart';
 import 'package:y_storiers/ui/settings/gender.dart';
 import 'package:y_storiers/ui/widgets/bottom_sheets/bottom_add_photo.dart';
 
+import '../../services/objects/user_info.dart';
+
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key? key}) : super(key: key);
 
@@ -39,6 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _image = '';
   String _imageUrl = '';
+
+  UserInfo? userInfo;
 
   @override
   void initState() {
@@ -109,6 +113,16 @@ class _SettingsPageState extends State<SettingsPage> {
     } else {
       return '';
     }
+  }
+
+  void _changePhoto() async {
+    userInfo = BlocProvider.of<UserBloc>(context).userInfo;
+    var token = Provider.of<AppData>(context, listen: false).user.userToken;
+    BlocProvider.of<UserBloc>(context).add(UpdatePhoto(
+        context: context,
+        nickname: userInfo!.nickname!,
+        photo: _image != '' ? 'data:image/jpeg;base64,' + _image : 'photo',
+        token: token));
   }
 
   void _updateInfo() async {
@@ -465,7 +479,15 @@ class _SettingsPageState extends State<SettingsPage> {
       actions: [
         GestureDetector(
           onTap: () {
-            _updateInfo();
+            if (_nameController.text.isEmpty &&
+                _descriptionController.text.isEmpty &&
+                _emailController.text.isEmpty &&
+                _image != '') {
+              _changePhoto();
+              print('photo changed');
+            } else {
+              _updateInfo();
+            }
           },
           child: Container(
             color: Colors.transparent,
@@ -502,10 +524,21 @@ class _SettingsPageState extends State<SettingsPage> {
           setState(() {
             _image = '';
             _imageUrl = '';
+            deletePhoto();
           });
         }
       }
     });
+  }
+
+  void deletePhoto() async {
+    userInfo = BlocProvider.of<UserBloc>(context).userInfo;
+    var token = Provider.of<AppData>(context, listen: false).user.userToken;
+    BlocProvider.of<UserBloc>(context).add(UpdatePhoto(
+        context: context,
+        nickname: userInfo!.nickname!,
+        photo: '',
+        token: token));
   }
 
   void _showTime() {

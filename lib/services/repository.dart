@@ -191,6 +191,22 @@ class Repository {
     }
   }
 
+  Future<EditPhoto?> changePhoto(
+    String? photo,
+    String token,
+  ) async {
+    dio.options.headers = {"Authorization": '$token'};
+
+    var changedPhoto = {
+      "photo": photo,
+    };
+    d.Response response =
+        await dio.put("users/change_photo", data: changedPhoto);
+    print('response is ${response.data}');
+
+    return EditPhoto.fromJson(response.data);
+  }
+
   Future<EditUser?> editInfo(
     String? name,
     String nickname,
@@ -220,7 +236,7 @@ class Repository {
     d.Response response =
         await dio.post("users/edit_profile", data: dataWithPhoto);
 
-    // print(response.data);
+    print(response.data);
 
     // try {
     return EditUser.fromJson(response.data);

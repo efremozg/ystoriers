@@ -121,7 +121,7 @@ class _AccountPageState extends State<AccountPage>
     }
   }
 
-  void _showBottomSheetToUpdatePhoto() async {
+  Future<void> _showBottomSheetToUpdatePhoto() async {
     await showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
@@ -129,7 +129,9 @@ class _AccountPageState extends State<AccountPage>
           return ChangePhotoBottom();
         }).then((value) {
       if (value is File) {
-        _setImage(value);
+        setState(() {
+          _setImage(value);
+        });
       }
       if (value is String) {
         if (value == 'delete') {
@@ -137,29 +139,32 @@ class _AccountPageState extends State<AccountPage>
             _image = '';
             _imageUrl = '';
           });
+          deletePhoto();
         }
       }
     });
+    changePhoto();
     //updatePhoto();
   }
 
-  void updatePhoto() async {
+  void changePhoto() async {
     userInfo = BlocProvider.of<UserBloc>(context).userInfo;
     var token = Provider.of<AppData>(context, listen: false).user.userToken;
-    BlocProvider.of<UserBloc>(context).add(
-      UpdateInfo(
-        name: null,
-        email: null,
-        nickname: userInfo!.nickname!,
-        description: null,
-        gender: null,
-        birth: null,
-        photo: _image != '' ? 'data:image/jpeg;base64,' + _image : 'photo',
-        token: token,
-        phone: null,
+    BlocProvider.of<UserBloc>(context).add(UpdatePhoto(
         context: context,
-      ),
-    );
+        nickname: userInfo!.nickname!,
+        photo: _image != '' ? 'data:image/jpeg;base64,' + _image : 'photo',
+        token: token));
+  }
+
+  void deletePhoto() async {
+    userInfo = BlocProvider.of<UserBloc>(context).userInfo;
+    var token = Provider.of<AppData>(context, listen: false).user.userToken;
+    BlocProvider.of<UserBloc>(context).add(UpdatePhoto(
+        context: context,
+        nickname: userInfo!.nickname!,
+        photo: '',
+        token: token));
   }
 
   void _setImage(File image) async {
@@ -672,10 +677,10 @@ class _AccountPageState extends State<AccountPage>
                 userInfo: userInfo,
                 size: 87,
                 title: false,
-                onTap: () {
+                onTap: () async {
                   if (userInfo!.nickname == nickname) {
                     if (userInfo!.stories.stories.allStories.isEmpty) {
-                      _showBottomSheetToUpdatePhoto();
+                      await _showBottomSheetToUpdatePhoto();
                     }
                   }
                   if (userInfo!.stories.stories.allStories.isNotEmpty) {

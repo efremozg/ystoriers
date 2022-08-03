@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:scale_button/scale_button.dart';
 import 'package:y_storiers/services/constants.dart';
 import 'package:y_storiers/ui/add_post/add_post.dart';
+import 'package:y_storiers/ui/provider/app_data.dart';
 import 'package:y_storiers/ui/settings/settings.dart';
+
+import '../../../bloc/user/user_bloc.dart';
+import '../../../bloc/user/user_event.dart';
+import '../../../services/objects/user_info.dart';
 
 class ChangePhotoBottom extends StatefulWidget {
   const ChangePhotoBottom({Key? key}) : super(key: key);
@@ -16,7 +23,7 @@ class _State extends State<ChangePhotoBottom> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
+      height: 220,
       decoration: const BoxDecoration(
         // color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -40,14 +47,6 @@ class _State extends State<ChangePhotoBottom> {
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
                     onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          fullscreenDialog: true,
-                          builder: (context) => SettingsPage(),
-                        ),
-                      );
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -63,7 +62,7 @@ class _State extends State<ChangePhotoBottom> {
                     child: const SizedBox(
                       height: 47,
                       child: Center(
-                        child: Text('Добавить фото профиля'),
+                        child: Text('Изменить фото профиля'),
                       ),
                     ),
                   ),
@@ -72,6 +71,25 @@ class _State extends State<ChangePhotoBottom> {
                   width: double.infinity,
                   height: 1,
                   color: greyClose.withOpacity(0.21),
+                ),
+                Material(
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(context, 'delete');
+                    },
+                    child: const SizedBox(
+                      height: 47,
+                      child: Center(
+                        child: Text(
+                          'Удалить фото',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -89,7 +107,7 @@ class _State extends State<ChangePhotoBottom> {
                   child: Center(
                     child: Text(
                       'Отмена',
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(),
                     ),
                   ),
                 ),

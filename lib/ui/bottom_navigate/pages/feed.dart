@@ -49,10 +49,9 @@ class _MainPageState extends State<MainPage>
   GetStories? _stories;
   UserInfo? _user;
 
-  Future _getStories() async {
+  void _getStories() async {
     var nickName = Provider.of<AppData>(context, listen: false).user.nickName;
     var result = await Repository().getStories(nickName);
-
     if (result != null) {
       setState(() {
         _stories = result;
@@ -64,6 +63,7 @@ class _MainPageState extends State<MainPage>
   Future<void> _refresh() async {
     _getFeed();
     _getInfo();
+    _getStories();
     return Future.delayed(const Duration(milliseconds: 1500));
   }
 
@@ -311,6 +311,7 @@ class _MainPageState extends State<MainPage>
                   onTap: () {
                     provider.openStories(true);
                     stories[index].stories.isFullViewed = true;
+
                     Repository().checkStory(provider.user.userToken,
                         stories[index].stories.allStories.first.id);
 
@@ -324,7 +325,7 @@ class _MainPageState extends State<MainPage>
                       context: context,
                       builder: (context) => StoryPage(
                         index: index,
-                        stories: null,
+                        stories: stories[index].stories,
                         usersStories: stories,
                       ),
                     ).then((value) => provider.openStories(false));

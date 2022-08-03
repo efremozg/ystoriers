@@ -12,6 +12,7 @@ import 'package:y_storiers/bloc/story/story_event.dart';
 import 'package:y_storiers/bloc/story/story_state.dart';
 import 'package:y_storiers/services/constants.dart';
 import 'package:y_storiers/services/objects/post.dart';
+import 'package:y_storiers/services/repository.dart';
 import 'package:y_storiers/ui/provider/app_data.dart';
 
 class StoriesVideo extends StatefulWidget {
@@ -38,6 +39,7 @@ class StoriesVideo extends StatefulWidget {
 
 class _StoriesVideoState extends State<StoriesVideo> {
   CachedVideoPlayerController? _controller;
+  late var url;
   @override
   void initState() {
     widget.pause();
@@ -51,9 +53,10 @@ class _StoriesVideoState extends State<StoriesVideo> {
     super.dispose();
   }
 
-  void _setController() {
+  void _setController() async {
     print(mediaUrl + widget.url);
     widget.pause();
+
     // print('indicator: ' +
     //     widget.indicatorAnimationController.value.pause.toString());
 
@@ -69,7 +72,7 @@ class _StoriesVideoState extends State<StoriesVideo> {
       }).onError((error, stackTrace) {
         print(error);
       });
-    // print(_controller?.dataSource);
+    print('${_controller?.dataSource}');
 
     _controller?.addListener(() {
       if (mediaUrl + widget.url != _controller?.dataSource) {

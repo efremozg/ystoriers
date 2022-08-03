@@ -24,6 +24,20 @@ class EditUser {
       );
 }
 
+class EditPhoto {
+  String photo;
+  //UserInfo user;
+
+  EditPhoto({
+    required this.photo,
+    //required this.user,
+  });
+
+  factory EditPhoto.fromJson(Map<String, dynamic> json) => EditPhoto(
+        photo: json['photo'],
+      );
+}
+
 UserInfo userInfoFromJson(String str) => UserInfo.fromJson(json.decode(str));
 
 String userInfoToJson(UserInfo data) => json.encode(data.toJson());

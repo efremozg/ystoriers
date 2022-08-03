@@ -174,6 +174,27 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       yield UserIdle();
     }
 
+    if (event is UpdatePhoto) {
+      yield UserLoading();
+
+      StandartSnackBar.show(
+        event.context,
+        'Фото обновляется',
+        SnackBarStatus.loading(),
+      );
+
+      var result = await Repository().changePhoto(event.photo, event.token);
+      if (result != null) {
+        StandartSnackBar.show(
+          event.context,
+          'Фото обновлено',
+          SnackBarStatus.success(),
+        );
+        Navigator.pop(event.context);
+      }
+      yield UserIdle();
+    }
+
     if (event is UpdateInfo) {
       yield UserLoading();
 
