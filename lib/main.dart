@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,34 +59,77 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
+  // ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  // final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _subscription;
-  var hasConnection = false;
-  bool isAlert = false;
+  late var hasConnection;
+  bool hasInternet = true;
   bool wasLost = false;
 
   @override
   void initState() {
-    super.initState();
-
     getConnectivity();
+    // checkConnection();
+    super.initState();
   }
 
   getConnectivity() => _subscription = Connectivity()
           .onConnectivityChanged
           .listen((ConnectivityResult result) async {
         hasConnection = await InternetConnectionChecker().hasConnection;
-        if (!hasConnection && result != ConnectivityResult.none) {
-          StandartSnackBar.show(context, 'Потеряно интернет соединение',
-              SnackBarStatus.warning());
+        var finalResult = result;
+        print(hasConnection);
+        print(result);
+        if (hasConnection == false && finalResult != ConnectivityResult.none) {
           setState(() => wasLost = true);
-        } else if (wasLost) {
+          StandartSnackBar.showAndDontRemoveUntil(
+              context,
+              'Потеряно интернет соединение',
+              SnackBarStatus.warning(),
+              Duration(seconds: 9));
+        } else if (wasLost == true &&
+            (result != ConnectivityResult.wifi ||
+                result != ConnectivityResult.mobile)) {
           StandartSnackBar.show(context, 'Cоединение восстановлено',
               SnackBarStatus.internetResultSuccess());
           setState(() => wasLost = false);
+        } else if (hasConnection == false &&
+            finalResult == ConnectivityResult.none) {
+          StandartSnackBar.showAndDontRemoveUntil(
+              context,
+              'Потеряно интернет соединение',
+              SnackBarStatus.warning(),
+              Duration(seconds: 9));
         }
       });
+
+  // checkConnection() {
+  //   _subscription = Connectivity()
+  //       .onConnectivityChanged
+  //       .listen((ConnectivityResult result) async {
+  //     hasConnection = await InternetConnectionChecker().hasConnection;
+  //     hasConnection == false && result != ConnectivityResult.none
+  //         ? showDialogBox()
+  //         : null;
+  //   });
+  // }
+
+  // void showDialogBox() {
+  //   if (Platform.isIOS) {
+  //     showCupertinoDialog<String>(
+  //         context: context,
+  //         builder: (BuildContext context) => CupertinoAlertDialog(
+  //               title: Text('Ошибка подключения'),
+  //               content: Text('Проверьте Интернет подключение'),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {},
+  //                   child: Text('OK'),
+  //                 )
+  //               ],
+  //             ));
+  //   }
+  // }
 
   @override
   void dispose() {

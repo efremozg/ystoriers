@@ -47,6 +47,99 @@ class StandartSnackBar {
       duration: const Duration(milliseconds: 4000),
     );
   }
+
+  static void showAndDontRemoveUntil(BuildContext context, String text,
+      SnackBarStatus status, Duration duration) {
+    showOverlayNotification(
+      (context) {
+        return SafeArea(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+            width: 400,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(10),
+              // boxShadow: shadow,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    status.icon,
+                    color: status.color,
+                    size: 30,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: SelectableText(
+                      text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      duration: duration,
+    );
+  }
+}
+
+class InfiniteSnackBar {
+  static void snackBar() {
+    showOverlayNotification((context) {
+      return SnackBar(
+        content: SafeArea(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+            width: 400,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(10),
+              // boxShadow: shadow,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Row(
+                children: const [
+                  Icon(
+                    Icons.error,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: SelectableText(
+                      'Потеряно интернет соединение',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        action: SnackBarAction(label: 'Закрыть', onPressed: () {}),
+      );
+    });
+  }
 }
 
 class SnackBarStatus {
