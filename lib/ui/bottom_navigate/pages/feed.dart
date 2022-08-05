@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
 import 'package:scale_button/scale_button.dart';
 import 'package:y_storiers/bloc/user/user.dart';
@@ -17,6 +19,7 @@ import 'package:y_storiers/services/objects/post.dart';
 import 'package:y_storiers/services/objects/stories.dart';
 import 'package:y_storiers/services/objects/user_info.dart';
 import 'package:y_storiers/services/repository.dart';
+import 'package:y_storiers/ui/add_post/widgets/standart_snackbar.dart';
 import 'package:y_storiers/ui/post/widgets/post.dart';
 import 'package:y_storiers/ui/provider/app_data.dart';
 import 'package:y_storiers/ui/strory/story.dart';
@@ -40,6 +43,10 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin<MainPage> {
   bool _loading = true;
+  late StreamSubscription<ConnectivityResult> _subscription;
+  late var hasConnection;
+  bool hasInternet = true;
+  bool wasLost = false;
 
   final _scrollController = ScrollController();
 
@@ -63,9 +70,41 @@ class _MainPageState extends State<MainPage>
   Future<void> _refresh() async {
     _getFeed();
     _getInfo();
-    _getStories();
+    // _getStories();
+    getConnectivity();
+
     return Future.delayed(const Duration(milliseconds: 1500));
   }
+
+  getConnectivity() => _subscription = Connectivity()
+          .onConnectivityChanged
+          .listen((ConnectivityResult result) async {
+        hasConnection = await InternetConnectionChecker().hasConnection;
+        var finalResult = result;
+        print(hasConnection);
+        print(result);
+        if (hasConnection == false && finalResult != ConnectivityResult.none) {
+          setState(() => wasLost = true);
+          StandartSnackBar.showAndDontRemoveUntil(
+              context,
+              'Потеряно интернет соединение',
+              SnackBarStatus.warning(),
+              Duration(seconds: 9));
+        } else if (wasLost == true &&
+            (result != ConnectivityResult.wifi ||
+                result != ConnectivityResult.mobile)) {
+          StandartSnackBar.show(context, 'Cоединение восстановлено',
+              SnackBarStatus.internetResultSuccess());
+          setState(() => wasLost = false);
+        } else if (hasConnection == false &&
+            finalResult == ConnectivityResult.none) {
+          StandartSnackBar.showAndDontRemoveUntil(
+              context,
+              'Потеряно интернет соединение',
+              SnackBarStatus.warning(),
+              Duration(seconds: 9));
+        }
+      });
 
   _scrollControllerListener() {
     if (!_scrollController.hasClients) return;
@@ -89,7 +128,7 @@ class _MainPageState extends State<MainPage>
       var provider = Provider.of<AppData>(context, listen: false);
       provider.openStories(false);
       // _getInfo();
-      // _getStories();
+      _getStories();
       _getFeed();
     });
     super.initState();
@@ -99,15 +138,17 @@ class _MainPageState extends State<MainPage>
     var token = Provider.of<AppData>(context, listen: false).user.userToken;
     BlocProvider.of<UserBloc>(context)
         .add(GetFeed(token: token, context: context));
+    var stories = Provider.of<AppData>(context, listen: false).isOpenStories;
   }
 
-  // @override
-  // void dispose() {
-  //   print('dispose');
-  //   var provider = Provider.of<AppData>(context, listen: false);
-  //   provider.openStories(true);
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    // print('dispose');
+    // var provider = Provider.of<AppData>(context, listen: false);
+    // provider.openStories(true);
+    _subscription.cancel();
+    super.dispose();
+  }
 
   void _getInfo() async {
     var user = Provider.of<AppData>(context, listen: false).user;
@@ -271,6 +312,7 @@ class _MainPageState extends State<MainPage>
     stories.addAll(checkedStories);
 
     var provider = Provider.of<AppData>(context);
+
     return SizedBox(
       height: 109,
       width: double.infinity,
@@ -312,9 +354,21 @@ class _MainPageState extends State<MainPage>
                     provider.openStories(true);
                     stories[index].stories.isFullViewed = true;
 
-                    Repository().checkStory(provider.user.userToken,
-                        stories[index].stories.allStories.first.id);
-
+                    // Repository().checkStory(provider.user.userToken,
+                    //     stories[index].stories.allStories.first.id);
+                    showModalBottomSheet(
+                      isScrollControlled: true,
+                      backgroundColor: Colors.black,
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height,
+                      ),
+                      context: context,
+                      builder: (context) => StoryPage(
+                        index: index,
+                        stories: stories[index].stories,
+                        usersStories: stories,
+                      ),
+                    ).timeout(Duration(milliseconds: 10));
                     setState(() {});
                     showModalBottomSheet(
                       isScrollControlled: true,
@@ -363,6 +417,7 @@ class _MainPageState extends State<MainPage>
                       onTap: () {
                         if (_user!.stories.stories.allStories.isNotEmpty) {
                           _user!.stories.stories.isFullViewed = true;
+
                           showModalBottomSheet(
                             isScrollControlled: true,
                             backgroundColor: Colors.black,

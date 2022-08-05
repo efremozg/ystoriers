@@ -46,6 +46,8 @@ dependencies:
   zoom_pinch_overlay: ^1.2.0
   connectivity_plus: ^2.3.6
   internet_connection_checker: ^0.0.1+4
+  preload_page_view: ^0.1.6
+  flutter_stories: ^0.3.1
 
 dev_dependencies:
   flutter_test:

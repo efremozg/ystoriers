@@ -398,6 +398,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.2"
+  flutter_stories:
+    dependency: "direct main"
+    description:
+      name: flutter_stories
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -716,6 +723,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
+  preload_page_view:
+    dependency: "direct main"
+    description:
+      name: preload_page_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.6"
   process:
     dependency: transitive
     description:

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 import 'package:story_time/story_page_view/story_page_view.dart';
 import 'package:y_storiers/bloc/story/story_bloc.dart';
@@ -46,11 +47,13 @@ class _StoryPageState extends State<StoryPage> {
 
   @override
   void initState() {
-    super.initState();
-
     indicatorAnimationController = ValueNotifier<IndicatorAnimationCommand>(
       IndicatorAnimationCommand(pause: true, resume: false),
     );
+    super.initState();
+    var bloc = BlocProvider.of<StoryBloc>(context);
+    _storyPageView(context, bloc);
+
     setPause();
     // init();
   }
@@ -104,7 +107,7 @@ class _StoryPageState extends State<StoryPage> {
         decoration: BoxDecoration(
           border: Border.all(width: 0),
           borderRadius: BorderRadius.circular(30),
-          color: Colors.black,
+          color: Colors.transparent,
         ),
         width: double.infinity,
         child: ClipRRect(
@@ -116,6 +119,11 @@ class _StoryPageState extends State<StoryPage> {
   }
 
   StoryPageView _storyPageView(BuildContext context, StoryBloc bloc) {
+    PreloadPageController controller = PreloadPageController(
+      initialPage: 0,
+      keepPage: true,
+    );
+
     return StoryPageView(
       initialStoryIndex: (pageIndex) => widget.stories?.index ?? widget.index,
       indicatorAnimationController: indicatorAnimationController,
@@ -203,7 +211,7 @@ class _StoryPageState extends State<StoryPage> {
     return Positioned.fill(
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Colors.transparent,
           border: Border.all(width: 30, color: Colors.black),
         ),
       ),
@@ -223,7 +231,7 @@ class _StoryPageState extends State<StoryPage> {
     //       ..initialize();
     return Positioned.fill(
       child: Container(
-        color: Colors.transparent,
+        color: Colors.black,
         padding: const EdgeInsets.only(bottom: 70),
         child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -249,8 +257,10 @@ class _StoryPageState extends State<StoryPage> {
                 : CachedNetworkImage(
                     imageUrl: mediaUrl + story!.media,
                     fit: BoxFit.fitWidth,
-                    //color: Colors.transparent,
+                    filterQuality: FilterQuality.medium,
+                    // color: Colors.black,
                     fadeInDuration: Duration(milliseconds: 0),
+                    fadeOutDuration: Duration(milliseconds: 0),
                   )),
       ),
     );
